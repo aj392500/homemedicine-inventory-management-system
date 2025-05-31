@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analyzer</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <div class="max-w-2xl mx-auto">
+            <h1 class="text-4xl font-bold text-center mb-8 text-indigo-600">Sentiment Analyzer</h1>
+            
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="mb-4">
+                    <label for="text-input" class="block text-gray-700 text-sm font-bold mb-2">Enter your text:</label>
+                    <textarea id="text-input" rows="4" 
+                        class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Type or paste your text here..."></textarea>
+                </div>
+                
+                <button onclick="analyzeSentiment()" 
+                    class="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-200">
+                    Analyze Sentiment
+                </button>
+                
+                <div id="result" class="mt-6 hidden">
+                    <div class="p-4 rounded-lg">
+                        <h2 class="text-xl font-semibold mb-2">Analysis Result:</h2>
+                        <p class="mb-2">Sentiment: <span id="sentiment-label" class="font-bold"></span></p>
+                        <p>Confidence: <span id="confidence-score" class="font-bold"></span></p>
+                    </div>
+                </div>
+                
+                <div id="error" class="mt-6 hidden">
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg">
+                        <p id="error-message"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function analyzeSentiment() {
+            const textInput = document.getElementById('text-input').value;
+            const resultDiv = document.getElementById('result');
+            const errorDiv = document.getElementById('error');
+            
+            if (!textInput.trim()) {
+                showError('Please enter some text to analyze.');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text: textInput })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('sentiment-label').textContent = data.sentiment;
+                    document.getElementById('confidence-score').textContent = data.score;
+                    resultDiv.classList.remove('hidden');
+                    errorDiv.classList.add('hidden');
+                } else {
+                    showError(data.error || 'An error occurred while analyzing the text.');
+                }
+            } catch (error) {
+                showError('An error occurred while connecting to the server.');
+            }
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            const resultDiv = document.getElementById('result');
+            document.getElementById('error-message').textContent = message;
+            errorDiv.classList.remove('hidden');
+            resultDiv.classList.add('hidden');
+        }
+    </script>
+</body>
+</html> 
