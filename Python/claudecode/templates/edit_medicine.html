@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Medicine - Medicine Inventory Manager{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-edit me-2"></i>Edit Medicine: {{ medicine.name }}</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label">Medicine Name *</label>
+                            <input type="text" class="form-control" id="name" name="name" value="{{ medicine.name }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="dosage" class="form-label">Dosage *</label>
+                            <input type="text" class="form-control" id="dosage" name="dosage" value="{{ medicine.dosage }}" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="frequency_days" class="form-label">Taking Frequency *</label>
+                            <select class="form-select" id="frequency_days" name="frequency_days" required>
+                                <option value="0.5" {% if medicine.frequency_days == 0.5 %}selected{% endif %}>Twice daily</option>
+                                <option value="1" {% if medicine.frequency_days == 1 %}selected{% endif %}>Once daily</option>
+                                <option value="2" {% if medicine.frequency_days == 2 %}selected{% endif %}>Every 2 days</option>
+                                <option value="3" {% if medicine.frequency_days == 3 %}selected{% endif %}>Every 3 days</option>
+                                <option value="7" {% if medicine.frequency_days == 7 %}selected{% endif %}>Once weekly</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="purchase_frequency_days" class="form-label">Purchase Frequency (days) *</label>
+                            <select class="form-select" id="purchase_frequency_days" name="purchase_frequency_days" required>
+                                <option value="30" {% if medicine.purchase_frequency_days == 30 %}selected{% endif %}>Monthly (30 days)</option>
+                                <option value="60" {% if medicine.purchase_frequency_days == 60 %}selected{% endif %}>Every 2 months (60 days)</option>
+                                <option value="90" {% if medicine.purchase_frequency_days == 90 %}selected{% endif %}>Every 3 months (90 days)</option>
+                                <option value="180" {% if medicine.purchase_frequency_days == 180 %}selected{% endif %}>Every 6 months (180 days)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="pills_per_purchase" class="form-label">Pills per Purchase *</label>
+                            <input type="number" class="form-control" id="pills_per_purchase" name="pills_per_purchase" value="{{ medicine.pills_per_purchase }}" min="1" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="low_stock_threshold" class="form-label">Low Stock Alert Threshold *</label>
+                            <input type="number" class="form-control" id="low_stock_threshold" name="low_stock_threshold" value="{{ medicine.low_stock_threshold }}" min="1" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="current_stock" class="form-label">Current Stock (pills)</label>
+                        <input type="number" class="form-control" id="current_stock" name="current_stock" value="{{ medicine.current_stock }}" min="0">
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Update Medicine
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

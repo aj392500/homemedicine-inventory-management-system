@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}Blood Sugar Tracking - Medicine Inventory Manager{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-tint me-2"></i>Blood Sugar Dashboard - {{ current_patient.name }}</h2>
+            <a href="{{ url_for('add_blood_sugar') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Add Reading
+            </a>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-line me-2"></i>Blood Sugar Trend (Last 30 Days)</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="bloodSugarChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-info-circle me-2"></i>Quick Stats</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_readings %}
+                        <p><strong>Latest Reading:</strong> {{ recent_readings[0].reading }} mg/dL</p>
+                        <p><strong>Reading Type:</strong> {{ recent_readings[0].reading_type.replace('_', ' ').title() }}</p>
+                        <p><strong>Date:</strong> {{ recent_readings[0].measured_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                        
+                        {% set avg_reading = (chart_readings|sum(attribute='reading') / chart_readings|length) if chart_readings else 0 %}
+                        <p><strong>30-Day Average:</strong> {{ "%.1f"|format(avg_reading) }} mg/dL</p>
+                        {% else %}
+                        <p class="text-muted">No readings recorded yet</p>
+                        {% endif %}
+                        
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <strong>Target Ranges:</strong><br>
+                                Fasting: 80-130 mg/dL<br>
+                                Post-meal: &lt; 180 mg/dL
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-history me-2"></i>Recent Readings</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_readings %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Date/Time</th>
+                                <th>Reading (mg/dL)</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reading in recent_readings %}
+                            <tr>
+                                <td>{{ reading.measured_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <strong>{{ reading.reading }}</strong>
+                                    {% if reading.reading_type == 'fasting' %}
+                                        {% if reading.reading < 80 %}
+                                            <span class="badge bg-warning">Low</span>
+                                        {% elif reading.reading > 130 %}
+                                            <span class="badge bg-danger">High</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Normal</span>
+                                        {% endif %}
+                                    {% elif reading.reading_type == 'post_meal' %}
+                                        {% if reading.reading > 180 %}
+                                            <span class="badge bg-danger">High</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Normal</span>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                                <td>{{ reading.reading_type.replace('_', ' ').title() }}</td>
+                                <td>
+                                    {% if reading.reading_type == 'fasting' %}
+                                        {% if reading.reading >= 80 and reading.reading <= 130 %}
+                                            <span class="text-success">In Range</span>
+                                        {% else %}
+                                            <span class="text-danger">Out of Range</span>
+                                        {% endif %}
+                                    {% elif reading.reading_type == 'post_meal' %}
+                                        {% if reading.reading <= 180 %}
+                                            <span class="text-success">In Range</span>
+                                        {% else %}
+                                            <span class="text-danger">Out of Range</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if reading.notes %}
+                                        {{ reading.notes }}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-tint fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No blood sugar readings yet</h5>
+                    <p class="text-muted">Start tracking by adding your first reading</p>
+                    <a href="{{ url_for('add_blood_sugar') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Add First Reading
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize chart
+    const ctx = document.getElementById('bloodSugarChart').getContext('2d');
+    
+    // Fetch data from API
+    fetch('/api/blood_sugar_chart_data')
+        .then(response => response.json())
+        .then(data => {
+            const readings = data.readings;
+            
+            // Prepare chart data
+            const chartData = {
+                labels: readings.map(r => r.date),
+                datasets: [{
+                    label: 'Blood Sugar (mg/dL)',
+                    data: readings.map(r => r.reading),
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    tension: 0.1
+                }]
+            };
+            
+            // Chart configuration
+            const config = {
+                type: 'line',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: 60,
+                            max: 300,
+                            title: {
+                                display: true,
+                                text: 'Blood Sugar (mg/dL)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date/Time'
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Blood Sugar Levels Over Time'
+                        }
+                    }
+                }
+            };
+            
+            new Chart(ctx, config);
+        })
+        .catch(error => {
+            console.error('Error fetching chart data:', error);
+        });
+});
+</script>
+{% endblock %}

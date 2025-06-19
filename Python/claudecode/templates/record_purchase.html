@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Record Purchase - Medicine Inventory Manager{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-shopping-cart me-2"></i>Record Purchase</h4>
+                <p class="mb-0 text-muted">{{ medicine.name }} ({{ medicine.dosage }})</p>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-4">
+                    <strong>Current Stock:</strong> {{ medicine.current_stock }} pills<br>
+                    <strong>Usual Purchase:</strong> {{ medicine.pills_per_purchase }} pills
+                </div>
+
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Quantity Purchased (pills) *</label>
+                        <input type="number" class="form-control" id="quantity" name="quantity" 
+                               value="{{ medicine.pills_per_purchase }}" min="1" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="cost" class="form-label">Cost (optional)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="cost" name="cost" step="0.01" min="0">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes (optional)</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                  placeholder="Any additional notes about this purchase..."></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save me-1"></i>Record Purchase
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

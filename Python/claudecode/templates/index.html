@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2><i class="fas fa-tachometer-alt me-2"></i>Medicine Inventory Dashboard</h2>
+                {% if current_patient %}
+                <div class="d-flex align-items-center mt-2">
+                    <span class="text-muted me-2">Current Patient:</span>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-1"></i>{{ current_patient.name }}
+                        </button>
+                        <ul class="dropdown-menu">
+                            {% for patient in patients %}
+                            <li>
+                                <a class="dropdown-item {% if patient.id == current_patient.id %}active{% endif %}" 
+                                   href="{{ url_for('switch_patient', patient_id=patient.id) }}">
+                                    <i class="fas fa-user me-1"></i>{{ patient.name }}
+                                    {% if patient.diabetes_type %}
+                                    <small class="text-muted">({{ patient.diabetes_type }})</small>
+                                    {% endif %}
+                                </a>
+                            </li>
+                            {% endfor %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('manage_patients') }}">
+                                <i class="fas fa-cog me-1"></i>Manage Patients
+                            </a></li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <a href="{{ url_for('add_medicine') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Add New Medicine
+            </a>
+        </div>
+
+        {% if low_stock_medicines %}
+        <div class="alert alert-warning alert-card mb-4">
+            <h5><i class="fas fa-exclamation-triangle me-2"></i>Low Stock Alerts</h5>
+            <ul class="mb-0">
+                {% for medicine in low_stock_medicines %}
+                <li><strong>{{ medicine.name }}</strong> - Only {{ medicine.current_stock }} pills remaining (Threshold: {{ medicine.low_stock_threshold }})</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div class="row">
+            {% for medicine in medicines %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card medicine-card {% if medicine.is_low_stock() %}low-stock{% endif %}">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0">{{ medicine.name }}</h6>
+                        {% if medicine.is_low_stock() %}
+                        <span class="badge bg-danger">Low Stock</span>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Dosage:</strong> {{ medicine.dosage }}</p>
+                        <p><strong>Current Stock:</strong> {{ medicine.current_stock }} pills</p>
+                        <p><strong>Days Remaining:</strong> ~{{ medicine.estimated_days_remaining() }} days</p>
+                        
+                        <div class="stock-info">
+                            <small>
+                                <i class="fas fa-calendar me-1"></i>
+                                Take every {{ medicine.frequency_days }} day(s)<br>
+                                <i class="fas fa-shopping-cart me-1"></i>
+                                Buy every {{ medicine.purchase_frequency_days }} days ({{ medicine.pills_per_purchase }} pills)
+                                {% if medicine.last_purchase_date %}
+                                <br><i class="fas fa-clock me-1"></i>
+                                Next purchase in {{ medicine.days_until_next_purchase() }} days
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="btn-group w-100" role="group">
+                            <a href="{{ url_for('record_purchase', id=medicine.id) }}" class="btn btn-success btn-sm">
+                                <i class="fas fa-plus"></i> Purchase
+                            </a>
+                            <a href="{{ url_for('edit_medicine', id=medicine.id) }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-edit"></i> Edit
+                            </a>
+                            <a href="{{ url_for('delete_medicine', id=medicine.id) }}" 
+                               class="btn btn-outline-danger btn-sm"
+                               onclick="return confirm('Are you sure you want to delete this medicine?')">
+                                <i class="fas fa-trash"></i> Delete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if not medicines %}
+        <div class="text-center py-5">
+            <i class="fas fa-pills fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">No medicines added yet</h4>
+            <p class="text-muted">Start by adding your first medicine to track inventory</p>
+            <a href="{{ url_for('add_medicine') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Add Your First Medicine
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

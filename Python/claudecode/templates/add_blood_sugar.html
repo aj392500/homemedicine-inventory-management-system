@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Add Blood Sugar Reading - Medicine Inventory Manager{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-tint me-2"></i>Add Blood Sugar Reading</h4>
+                <p class="mb-0 text-muted">Patient: {{ current_patient.name }}</p>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="reading" class="form-label">Blood Sugar Reading (mg/dL) *</label>
+                        <input type="number" class="form-control" id="reading" name="reading" 
+                               min="40" max="600" step="0.1" required>
+                        <small class="form-text text-muted">Enter reading in mg/dL (e.g., 120)</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="reading_type" class="form-label">Reading Type *</label>
+                        <select class="form-select" id="reading_type" name="reading_type" required>
+                            <option value="">Select reading type</option>
+                            <option value="fasting">Fasting (before breakfast)</option>
+                            <option value="post_meal">Post-meal (2 hours after eating)</option>
+                            <option value="random">Random</option>
+                            <option value="bedtime">Bedtime</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="measured_at" class="form-label">Date & Time</label>
+                        <input type="datetime-local" class="form-control" id="measured_at" name="measured_at">
+                        <small class="form-text text-muted">Leave empty to use current time</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes (optional)</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3" 
+                                  placeholder="Any additional notes (medications taken, symptoms, etc.)..."></textarea>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-2"></i>Target Ranges:</h6>
+                        <ul class="mb-0">
+                            <li><strong>Fasting:</strong> 80-130 mg/dL</li>
+                            <li><strong>Post-meal:</strong> Less than 180 mg/dL</li>
+                            <li><strong>Bedtime:</strong> 100-140 mg/dL</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('blood_sugar_dashboard') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Add Reading
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Set current datetime as default
+document.addEventListener('DOMContentLoaded', function() {
+    const now = new Date();
+    const datetime = now.toISOString().slice(0, 16);
+    document.getElementById('measured_at').value = datetime;
+});
+</script>
+{% endblock %}

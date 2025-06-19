@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Patients - Medicine Inventory Manager{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-users me-2"></i>Manage Patients</h2>
+            <a href="{{ url_for('add_patient') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Add New Patient
+            </a>
+        </div>
+
+        {% if patients %}
+        <div class="row">
+            {% for patient in patients %}
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ patient.name }}</h5>
+                        {% if patient.diabetes_type %}
+                        <span class="badge bg-info">{{ patient.diabetes_type }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        {% if patient.date_of_birth %}
+                        <p><strong>DOB:</strong> {{ patient.date_of_birth.strftime('%Y-%m-%d') }}</p>
+                        {% endif %}
+                        {% if patient.gender %}
+                        <p><strong>Gender:</strong> {{ patient.gender }}</p>
+                        {% endif %}
+                        {% if patient.notes %}
+                        <p><strong>Notes:</strong> {{ patient.notes }}</p>
+                        {% endif %}
+                        
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-pills me-1"></i>{{ patient.medicines|length }} medicines<br>
+                                <i class="fas fa-tint me-1"></i>{{ patient.blood_sugar_readings|length }} blood sugar readings
+                            </small>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ url_for('switch_patient', patient_id=patient.id) }}" class="btn btn-success btn-sm">
+                            <i class="fas fa-user-check me-1"></i>Select Patient
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+            <h4 class="text-muted">No patients added yet</h4>
+            <p class="text-muted">Start by adding your first patient to track their medications</p>
+            <a href="{{ url_for('add_patient') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Add Your First Patient
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
