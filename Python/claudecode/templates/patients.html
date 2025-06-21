@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Patients - Medicine Inventory Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-users me-2"></i>Patients</h2>
+    <a href="{{ url_for('add_patient') }}" class="btn btn-primary">
+        <i class="fas fa-user-plus me-1"></i>Add New Patient
+    </a>
+</div>
+
+{% if patients %}
+    <div class="row">
+        {% for patient in patients %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-user me-2"></i>{{ patient.name }}
+                        </h5>
+                        <div class="card-text">
+                            {% if patient.date_of_birth %}
+                                <p class="mb-1">
+                                    <small class="text-muted">
+                                        <i class="fas fa-birthday-cake me-1"></i>
+                                        Born: {{ patient.date_of_birth.strftime('%B %d, %Y') if patient.date_of_birth else 'Not specified' }}
+                                    </small>
+                                </p>
+                            {% endif %}
+                            
+                            {% if patient.gender %}
+                                <p class="mb-1">
+                                    <small class="text-muted">
+                                        <i class="fas fa-venus-mars me-1"></i>{{ patient.gender }}
+                                    </small>
+                                </p>
+                            {% endif %}
+                            
+                            {% if patient.diabetes_type %}
+                                <p class="mb-1">
+                                    <span class="badge bg-info">{{ patient.diabetes_type }}</span>
+                                </p>
+                            {% endif %}
+                            
+                            {% if patient.notes %}
+                                <p class="mb-2">
+                                    <small class="text-muted">{{ patient.notes[:100] }}{% if patient.notes|length > 100 %}...{% endif %}</small>
+                                </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="btn-group w-100" role="group">
+                            <a href="{{ url_for('medicines') }}?patient_id={{ patient.id }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-pills me-1"></i>Medicines
+                            </a>
+                            <a href="{{ url_for('edit_patient', patient_id=patient.id) }}" class="btn btn-outline-secondary btn-sm">
+                                <i class="fas fa-edit me-1"></i>Edit
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-user-plus fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">No patients yet</h4>
+        <p class="text-muted">Start by adding your first patient to track their medicine inventory.</p>
+        <a href="{{ url_for('add_patient') }}" class="btn btn-primary">
+            <i class="fas fa-user-plus me-1"></i>Add First Patient
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

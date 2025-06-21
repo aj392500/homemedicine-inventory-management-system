@@ -26,6 +26,7 @@
                         <div class="col-md-6 mb-3">
                             <label for="frequency_days" class="form-label">Taking Frequency *</label>
                             <select class="form-select" id="frequency_days" name="frequency_days" required>
+                                <option value="0.33" {% if medicine.frequency_days == 0.33 %}selected{% endif %}>Thrice daily</option>
                                 <option value="0.5" {% if medicine.frequency_days == 0.5 %}selected{% endif %}>Twice daily</option>
                                 <option value="1" {% if medicine.frequency_days == 1 %}selected{% endif %}>Once daily</option>
                                 <option value="2" {% if medicine.frequency_days == 2 %}selected{% endif %}>Every 2 days</option>

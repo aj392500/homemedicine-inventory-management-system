@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Purchase History - Medicine Inventory Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-history me-2"></i>Purchase History</h2>
+    <div class="btn-group">
+        <a href="{{ url_for('add_purchase') }}" class="btn btn-outline-primary">
+            <i class="fas fa-plus me-1"></i>Single Purchase
+        </a>
+        <a href="{{ url_for('bulk_purchase') }}" class="btn btn-primary">
+            <i class="fas fa-cart-plus me-1"></i>Bulk Purchase
+        </a>
+    </div>
+</div>
+
+{% if purchases %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th><i class="fas fa-user me-1"></i>Patient</th>
+                            <th><i class="fas fa-pills me-1"></i>Medicine</th>
+                            <th><i class="fas fa-calendar me-1"></i>Date</th>
+                            <th><i class="fas fa-sort-numeric-up me-1"></i>Quantity</th>
+                            <th><i class="fas fa-rupee-sign me-1"></i>Cost (₹)</th>
+                            <th><i class="fas fa-sticky-note me-1"></i>Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for purchase in purchases %}
+                            <tr>
+                                <td>
+                                    <strong>{{ purchase.patient_name or 'Unknown Patient' }}</strong>
+                                </td>
+                                <td>
+                                    <strong>{{ purchase.medicine_name or 'Unknown Medicine' }}</strong>
+                                    {% if purchase.medicine_dosage %}
+                                        <br><small class="text-muted">{{ purchase.medicine_dosage }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if purchase.purchase_date %}
+                                        {{ purchase.purchase_date.strftime('%B %d, %Y') }}
+                                        <br><small class="text-muted">{{ purchase.purchase_date.strftime('%A') }}</small>
+                                    {% else %}
+                                        <span class="text-muted">No date</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">{{ purchase.quantity }}</span>
+                                    <small class="text-muted">pills</small>
+                                </td>
+                                <td>
+                                    {% if purchase.cost %}
+                                        <span class="text-success">₹{{ "%.2f"|format(purchase.cost) }}</span>
+                                    {% else %}
+                                        <span class="text-muted">Not tracked</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if purchase.notes %}
+                                        {{ purchase.notes[:50] }}{% if purchase.notes|length > 50 %}...{% endif %}
+                                    {% else %}
+                                        <span class="text-muted">No notes</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">{{ purchases|length }}</h5>
+                    <p class="card-text">Total Purchases</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-success">
+                        {% set total_cost = purchases|selectattr('cost')|map(attribute='cost')|sum %}
+                        {% if total_cost > 0 %}
+                            ₹{{ "%.2f"|format(total_cost) }}
+                        {% else %}
+                            ₹0.00
+                        {% endif %}
+                    </h5>
+                    <p class="card-text">Total Spent</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-info">
+                        {{ purchases|map(attribute='quantity')|sum }}
+                    </h5>
+                    <p class="card-text">Total Pills</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title text-warning">
+                        {% if purchases %}
+                            {{ purchases|groupby('medicine_name')|list|length }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </h5>
+                    <p class="card-text">Medicines</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">No purchases recorded yet</h4>
+        <p class="text-muted">Start by recording your first medicine purchase to track your spending and inventory.</p>
+        <a href="{{ url_for('add_purchase') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Record First Purchase
+        </a>
+    </div>
+{% endif %}
+{% endblock %}

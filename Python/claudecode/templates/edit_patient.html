@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Patient - Medicine Inventory Manager{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-user-edit me-2"></i>Edit Patient</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Patient Name</label>
+                        <input type="text" class="form-control" id="name" name="name" 
+                               value="{{ patient.name }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="date_of_birth" class="form-label">Date of Birth</label>
+                        <input type="date" class="form-control" id="date_of_birth" name="date_of_birth"
+                               value="{{ patient.date_of_birth.strftime('%Y-%m-%d') if patient.date_of_birth else '' }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="gender" class="form-label">Gender</label>
+                        <select class="form-select" id="gender" name="gender">
+                            <option value="">Select gender...</option>
+                            <option value="Male" {% if patient.gender == 'Male' %}selected{% endif %}>Male</option>
+                            <option value="Female" {% if patient.gender == 'Female' %}selected{% endif %}>Female</option>
+                            <option value="Other" {% if patient.gender == 'Other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="diabetes_type" class="form-label">Diabetes Type</label>
+                        <select class="form-select" id="diabetes_type" name="diabetes_type">
+                            <option value="">Select type...</option>
+                            <option value="Type 1" {% if patient.diabetes_type == 'Type 1' %}selected{% endif %}>Type 1</option>
+                            <option value="Type 2" {% if patient.diabetes_type == 'Type 2' %}selected{% endif %}>Type 2</option>
+                            <option value="Gestational" {% if patient.diabetes_type == 'Gestational' %}selected{% endif %}>Gestational</option>
+                            <option value="Other" {% if patient.diabetes_type == 'Other' %}selected{% endif %}>Other</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="4" 
+                                  placeholder="Any additional notes about the patient...">{{ patient.notes or '' }}</textarea>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('patients') }}" class="btn btn-secondary me-md-2">
+                            <i class="fas fa-arrow-left me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Update Patient
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

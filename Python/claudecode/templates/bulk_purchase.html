@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Bulk Purchase - Medicine Inventory Manager{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="fas fa-shopping-cart me-2"></i>Record Bulk Purchase</h4>
+                <p class="mb-0 text-muted">Record purchases for multiple medicines in one transaction</p>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <!-- Common Purchase Info -->
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label for="patient_id" class="form-label">Patient *</label>
+                            <select class="form-select" id="patient_id" name="patient_id" required onchange="filterMedicinesByPatient()">
+                                <option value="">Select a patient...</option>
+                                {% for patient in patients %}
+                                    <option value="{{ patient.id }}">{{ patient.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">Choose which patient this purchase is for</div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="purchase_date" class="form-label">Purchase Date *</label>
+                            <input type="date" class="form-control" id="purchase_date" name="purchase_date" value="{{ today }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="notes" class="form-label">Common Notes</label>
+                            <input type="text" class="form-control" id="notes" name="notes" placeholder="e.g., Pharmacy name, prescription number">
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Medicines List -->
+                    <h5 class="mb-3"><i class="fas fa-pills me-2"></i>Select Medicines to Purchase</h5>
+                    
+                    {% if medicines %}
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Medicine</th>
+                                    <th>Current Stock</th>
+                                    <th>Quantity Purchased</th>
+                                    <th>Cost (₹)</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for medicine in medicines %}
+                                <tr id="medicine-row-{{ medicine.id }}" data-patient="{{ medicine.patient_id }}" style="display: none;">
+                                    <td>
+                                        <strong>{{ medicine.name }}</strong><br>
+                                        <small class="text-muted">{{ medicine.dosage }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-info">{{ medicine.current_stock }} pills</span>
+                                    </td>
+                                    <td>
+                                        <input type="number" 
+                                               class="form-control" 
+                                               name="medicine_{{ medicine.id }}_quantity" 
+                                               id="quantity_{{ medicine.id }}"
+                                               min="0" 
+                                               placeholder="0"
+                                               onchange="toggleRow('{{ medicine.id }}')">
+                                    </td>
+                                    <td>
+                                        <div class="input-group">
+                                            <span class="input-group-text">₹</span>
+                                            <input type="number" 
+                                                   class="form-control" 
+                                                   name="medicine_{{ medicine.id }}_cost" 
+                                                   id="cost_{{ medicine.id }}"
+                                                   min="0" 
+                                                   step="0.01"
+                                                   placeholder="0.00">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-success" onclick="quickFill('{{ medicine.id }}', {{ medicine.pills_per_purchase or 30 }})">
+                                            <i class="fas fa-magic"></i> Auto-fill
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Summary -->
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6><i class="fas fa-calculator me-2"></i>Purchase Summary</h6>
+                                    <p class="mb-1">Items to purchase: <span id="item-count">0</span></p>
+                                    <p class="mb-0">Total cost: ₹<span id="total-cost">0.00</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-pills fa-2x text-muted mb-3"></i>
+                        <h5 class="text-muted">No medicines available</h5>
+                        <p class="text-muted">Add medicines first before recording purchases</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{{ url_for('purchases') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Back to Purchases
+                        </a>
+                        {% if medicines %}
+                        <button type="submit" class="btn btn-primary" id="submit-btn" disabled>
+                            <i class="fas fa-save me-1"></i>Record Purchases
+                        </button>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterMedicinesByPatient() {
+    const patientSelect = document.getElementById('patient_id');
+    const selectedPatient = patientSelect.value;
+    const medicineRows = document.querySelectorAll('tr[data-patient]');
+    
+    // Clear all quantities when changing patient
+    const quantityInputs = document.querySelectorAll('input[name$="_quantity"]');
+    quantityInputs.forEach(input => {
+        input.value = '';
+    });
+    
+    const costInputs = document.querySelectorAll('input[name$="_cost"]');
+    costInputs.forEach(input => {
+        input.value = '';
+    });
+    
+    if (selectedPatient) {
+        // Show medicines for selected patient
+        medicineRows.forEach(row => {
+            if (row.getAttribute('data-patient') === selectedPatient) {
+                row.style.display = '';
+                row.classList.remove('table-success');
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    } else {
+        // Hide all medicines if no patient selected
+        medicineRows.forEach(row => {
+            row.style.display = 'none';
+            row.classList.remove('table-success');
+        });
+    }
+    
+    updateSummary();
+}
+
+function toggleRow(medicineId) {
+    const quantity = document.getElementById('quantity_' + medicineId).value;
+    const row = document.getElementById('medicine-row-' + medicineId);
+    
+    if (quantity && parseInt(quantity) > 0) {
+        row.classList.add('table-success');
+    } else {
+        row.classList.remove('table-success');
+    }
+    
+    updateSummary();
+}
+
+function quickFill(medicineId, suggestedQuantity) {
+    document.getElementById('quantity_' + medicineId).value = suggestedQuantity;
+    toggleRow(medicineId);
+}
+
+function updateSummary() {
+    let itemCount = 0;
+    let totalCost = 0;
+    
+    const quantityInputs = document.querySelectorAll('input[name$="_quantity"]');
+    quantityInputs.forEach(input => {
+        const row = input.closest('tr');
+        // Only count visible rows (medicines for selected patient)
+        if (row && row.style.display !== 'none') {
+            const quantity = parseInt(input.value) || 0;
+            if (quantity > 0) {
+                itemCount++;
+                
+                // Get corresponding cost input
+                const medicineId = input.name.replace('medicine_', '').replace('_quantity', '');
+                const costInput = document.getElementById('cost_' + medicineId);
+                const cost = parseFloat(costInput.value) || 0;
+                totalCost += cost;
+            }
+        }
+    });
+    
+    document.getElementById('item-count').textContent = itemCount;
+    document.getElementById('total-cost').textContent = totalCost.toFixed(2);
+    
+    // Enable/disable submit button
+    const submitBtn = document.getElementById('submit-btn');
+    if (submitBtn) {
+        submitBtn.disabled = itemCount === 0;
+    }
+}
+
+// Add event listeners to all cost inputs
+document.addEventListener('DOMContentLoaded', function() {
+    const costInputs = document.querySelectorAll('input[name$="_cost"]');
+    costInputs.forEach(input => {
+        input.addEventListener('input', updateSummary);
+    });
+});
+</script>
+{% endblock %}

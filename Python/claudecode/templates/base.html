@@ -21,15 +21,30 @@
             </a>
             <div class="navbar-nav ms-auto">
                 <a class="nav-link" href="{{ url_for('index') }}">Dashboard</a>
+                <a class="nav-link" href="{{ url_for('medicines') }}">Medicines</a>
                 <a class="nav-link" href="{{ url_for('add_medicine') }}">Add Medicine</a>
-                <a class="nav-link" href="{{ url_for('blood_sugar_dashboard') }}">Blood Sugar</a>
-                <a class="nav-link" href="{{ url_for('purchase_history') }}">Purchase History</a>
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="purchaseDropdown" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-shopping-cart me-1"></i>Purchases
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('purchases') }}">
+                            <i class="fas fa-list me-1"></i>View Purchases
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('add_purchase') }}">
+                            <i class="fas fa-plus me-1"></i>Single Purchase
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('bulk_purchase') }}">
+                            <i class="fas fa-cart-plus me-1"></i>Bulk Purchase
+                        </a></li>
+                    </ul>
+                </div>
                 <div class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="patientDropdown" role="button" data-bs-toggle="dropdown">
                         <i class="fas fa-user me-1"></i>Patients
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{ url_for('manage_patients') }}">
+                        <li><a class="dropdown-item" href="{{ url_for('patients') }}">
                             <i class="fas fa-users me-1"></i>Manage Patients
                         </a></li>
                         <li><a class="dropdown-item" href="{{ url_for('add_patient') }}">

@@ -11,6 +11,17 @@
             </div>
             <div class="card-body">
                 <form method="POST">
+                    <div class="mb-3">
+                        <label for="patient_id" class="form-label">Patient *</label>
+                        <select class="form-select" id="patient_id" name="patient_id" required>
+                            <option value="">Select a patient...</option>
+                            {% for patient in patients %}
+                                <option value="{{ patient.id }}">{{ patient.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Choose which patient this medicine is for</div>
+                    </div>
+                    
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="name" class="form-label">Medicine Name *</label>
@@ -27,6 +38,7 @@
                             <label for="frequency_days" class="form-label">Taking Frequency *</label>
                             <select class="form-select" id="frequency_days" name="frequency_days" required>
                                 <option value="">Select frequency</option>
+                                <option value="0.33">Thrice daily</option>
                                 <option value="0.5">Twice daily</option>
                                 <option value="1">Once daily</option>
                                 <option value="2">Every 2 days</option>

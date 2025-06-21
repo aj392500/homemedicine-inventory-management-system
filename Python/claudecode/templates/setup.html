@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medicine Inventory Manager - Setup</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <div>
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    Welcome to Medicine Inventory Manager
+                </h2>
+                <p class="mt-2 text-center text-sm text-gray-600">
+                    Setup required to get started
+                </p>
+            </div>
+            <div class="bg-white shadow-md rounded-lg p-6">
+                <div class="space-y-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                                <span class="text-red-600 font-semibold">1</span>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-medium text-gray-900">Notion Integration Required</h3>
+                            <p class="text-sm text-gray-600">
+                                This application requires Notion database setup to store your medicine inventory data.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                                <span class="text-yellow-600 font-semibold">2</span>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-medium text-gray-900">Follow Setup Guide</h3>
+                            <p class="text-sm text-gray-600">
+                                Please follow the <code>NOTION_SETUP.md</code> file to configure your Notion databases.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                <span class="text-green-600 font-semibold">3</span>
+                            </div>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-medium text-gray-900">Configure Environment</h3>
+                            <p class="text-sm text-gray-600">
+                                Update your <code>.env</code> file with Notion integration token and database IDs.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6 p-4 bg-blue-50 rounded-md">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="text-sm font-medium text-blue-800">Quick Setup Steps:</h3>
+                            <div class="mt-2 text-sm text-blue-700">
+                                <ol class="list-decimal list-inside space-y-1">
+                                    <li>Create a Notion integration at <a href="https://www.notion.so/my-integrations" class="underline" target="_blank">notion.so/my-integrations</a></li>
+                                    <li>Create three databases: Patients, Medicines, Purchases</li>
+                                    <li>Share each database with your integration</li>
+                                    <li>Copy database IDs and integration token to <code>.env</code> file</li>
+                                    <li>Restart the application</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <button onclick="window.location.reload()" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Retry Connection
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
